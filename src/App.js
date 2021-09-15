@@ -1,17 +1,12 @@
+import "./App.css";
 
-import './App.css';
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link
-} from "react-router-dom";
-
-import { CategoryContext, NumberContext } from './context/CategoryContext';
-import Home from './pages/Home';
-import About from './pages/About';
-import Dashboard from './pages/Dashboard';
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Dashboard from "./pages/Dashboard";
+import NavBar from "./components/NavBar";
+import { useState } from "react";
 
 // This site has 3 pages, all of which are rendered
 // dynamically in the browser (not server rendered).
@@ -22,42 +17,32 @@ import Dashboard from './pages/Dashboard';
 // making sure things like the back button and bookmarks
 // work properly.
 
-
 function App() {
-  
+  const [update, setUpdate] = useState(false);
+
+  function toggleUpdate() {
+    setUpdate((last) => !last);
+  }
 
   return (
     <div className="App">
       <Router>
-      <div>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-          <li>
-            <Link to="/dashboard">Dashboard</Link>
-          </li>
-        </ul>
+        <div>
+          <NavBar update={update} toggleUpdate={toggleUpdate} />
 
-        <hr />
-        <CategoryContext.Provider value={['Wicks', 'Containers', 'Scents', 'Wax']}>
-        <Switch>
-          <Route exact path="/">
-            <Home />
-          </Route>
-          <Route path="/about">
-            <About />
-          </Route>
-          <Route path="/dashboard">
-            <Dashboard />
-          </Route>
-        </Switch>
-        </CategoryContext.Provider>
-      </div>
-    </Router>
+          <Switch>
+            <Route exact path="/">
+              <Home update={update} toggleUpdate={toggleUpdate} />
+            </Route>
+            <Route path="/about">
+              <About />
+            </Route>
+            <Route path="/dashboard/:id">
+              <Dashboard />
+            </Route>
+          </Switch>
+        </div>
+      </Router>
     </div>
   );
 }

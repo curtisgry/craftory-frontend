@@ -1,124 +1,99 @@
 import React from "react";
-import { useState, useEffect, useContext } from "react";
-import { CategoryContext } from "../context/CategoryContext";
-import axios from 'axios'
+import { useState } from "react";
+import axios from "axios";
+import { Button, Form, FormGroup, Label, Input } from "reactstrap";
 
+export default function AddItem({
+  id,
+  categories,
+  className,
+  handleClickModalBody,
+  handleClick,
+  updateState,
+}) {
+  const [name, setName] = useState("");
+  const [qty, setQty] = useState(0);
+  const [qtyLow, setQtyLow] = useState(0);
+  const [link, setLink] = useState("");
 
+  function handleName(e) {
+    setName(e.target.value);
+  }
+  function handleNumber(e) {
+    setQty(e.target.value);
+  }
+  function handleNumberLow(e) {
+    setQtyLow(e.target.value);
+  }
+  function handleLink(e) {
+    setLink(e.target.value);
+  }
 
-export default function AddItem({ handleClick, updateState}){
-    const [name, setName] = useState('')
-    const [qty, setQty] = useState(0)
-    const [qtyLow, setQtyLow] = useState(0)
-    const [upc, setUpc] = useState('')
-    const [category, setCategory] = useState('Wicks')
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const data = {
+      name,
+      qty,
+      qtyLow,
+      link,
+      company: id,
+    };
 
-    const categories = useContext(CategoryContext)
+    updateState();
+    await axios.post("/items", data);
 
-    function handleName(e) {
-        setName(e.target.value)
-    }
-    function handleNumber(e) {
-        setQty(e.target.value)
-    }
-    function handleNumberLow(e) {
-        setQtyLow(e.target.value)
-    }
-    function handleUpc(e) {
-        setUpc(e.target.value)
-    }
-    function handleCategory(e) {
-        setCategory(e.target.value)
-    }
+    setName("");
+    setQty(0);
+    setLink("");
+  }
 
-    async function handleSubmit(e) {
-        e.preventDefault()
-        const data = {
-            name,
-            qty,
-            qtyLow,
-            upc,
-            category
-        }
-        setName('')
-        setQty(0)
-        setUpc('')
-        setCategory('')
-        updateState()
-        const res = await axios.post('/items', data)
-        
-    }
-    console.log(category)
-    return (
-        
-     
-            <div className="modal">
-                <form onSubmit={handleSubmit}>
-                    <div>
-                        <label htmlFor="name">Item Name: </label>
-                        <input 
-                        id="name"
-                        type="text" 
-                        name="name"
-                        value={name}
-                        onChange={handleName}
-                        placeholder="Item Name"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="qty">Item QTY: </label>
-                        <input 
-                        id="qty"
-                        type="number" 
-                        name="qty"
-                        value={qty}
-                        onChange={handleNumber}
-                        placeholder="Item QTY"
-                        />
-                    </div>
-               
-                    <div>
-                        <label htmlFor="qtyLow">Low quantity threshold: </label>
-                        <p>When quantity reaches this or below it will apear as low stock </p>
-                        
-                        <input 
-                        id="qtyLow"
-                        type="number" 
-                        name="qtyLow"
-                        value={qtyLow}
-                        onChange={handleNumberLow}
-                        placeholder="Low threshold"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="upc">Item UPC: </label>
-                        <input 
-                        id="upc"
-                        type="texy" 
-                        name="upc"
-                        value={upc}
-                        onChange={handleUpc}
-                        placeholder="If Available"
-                        />
-                    </div>
-                    <div>
-                    <label htmlFor="category">Item Category: </label>
-                    <select id="category" name="category" onChange={handleCategory}>
-                        {categories.map(opt => {
-                            return(
-                                <option>{opt}</option>
-                            )
-                        })}
-                    </select>
-                    </div>
-                    <button 
-                    onClick={handleClick} 
-                    disabled={!name ? true : false}
-                    >
-                        Add
-                    </button>
-                </form>
-            </div>
-
-      
-    )
+  return (
+    <Form onSubmit={handleSubmit}>
+      <FormGroup>
+        <Label for="name">Item Name</Label>
+        <Input
+          type="text"
+          name="name"
+          id="name"
+          value={name || ""}
+          onChange={handleName}
+          placeholder="Enter item name"
+        />
+      </FormGroup>
+      <FormGroup>
+        <Label for="qty">Amount Available</Label>
+        <Input
+          type="number"
+          name="qty"
+          id="qty"
+          value={qty || ""}
+          onChange={handleNumber}
+          placeholder="Enter quantity"
+        />
+      </FormGroup>
+      <FormGroup>
+        <Label for="qtyLow">Low Stock Threshold</Label>
+        <Input
+          type="number"
+          name="qtyLow"
+          id="qtyLow"
+          value={qtyLow || ""}
+          onChange={handleNumberLow}
+          placeholder="Enter quantity"
+        />
+      </FormGroup>
+      <FormGroup>
+        <Label for="link">Link for re-order</Label>
+        <Input
+          type="text"
+          name="link"
+          id="link"
+          value={link || ""}
+          onChange={handleLink}
+          placeholder="Enter link"
+        />
+      </FormGroup>
+      <Button disabled={name && qty ? false : true}>Submit</Button>
+    </Form>
+  );
 }
