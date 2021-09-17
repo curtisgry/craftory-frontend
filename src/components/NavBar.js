@@ -1,11 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import { UserProvider} from "../context/UserContext";
 
-const NavBar = ({ update, toggleUpdate }) => {
+const NavBar = ({update}) => {
   // const [isOpen, setIsOpen] = useState(false);
   const [userCompanies, setUserCompanies] = useState(null);
+  const {user} = useContext(UserProvider.context)
 
   // const toggle = () => setIsOpen(!isOpen);
 
@@ -13,7 +15,7 @@ const NavBar = ({ update, toggleUpdate }) => {
     if (arr) {
       const links = userCompanies.map((item) => {
         return (
-          <li key={item._id} className="nav-item">
+          <li key={item._id} className="dropdown-item">
             <Link className="nav-link" to={`/dashboard/${item._id}`}>
               {item.name}
             </Link>
@@ -24,18 +26,55 @@ const NavBar = ({ update, toggleUpdate }) => {
       return links;
     }
   }
+  
+  function logout(){
+    axios.get('/logout')
+  }
+
+  function renderCondLinks(){
+    console.log(user)
+    if(!user) {
+      return (
+        <>
+        <li className="nav-item">
+            <Link className="nav-link" to="/signup">
+              Sign Up
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/login">
+              Log In
+            </Link>
+          </li>
+          </>
+      )
+    } else {
+      return (
+        <>
+        <li className="nav-item">
+            <a className="nav-link" href="/" onClick={logout}>
+              Log Out
+            </a>
+          </li>
+        </>
+      )
+    }
+  }
 
   useEffect(() => {
-    async function fetchData() {
+   ( async function fetchData() {
       const res = await axios.get("/nav");
       const { companies } = res.data;
       setUserCompanies([...companies]);
-    }
-
-    fetchData();
-  }, [update]);
+  
+    })();
+    console.log('navlink useeffect')
+    
+  }, [ update ]);
 
   const dashboardLinks = makeLinks(userCompanies);
+  const conditionalLinks = renderCondLinks()
+  
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -61,12 +100,21 @@ const NavBar = ({ update, toggleUpdate }) => {
                 Home
               </Link>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/about">
-                About
-              </Link>
+   
+            {conditionalLinks}
+
+            
+            {dashboardLinks ? (
+              <li className="nav-item dropdown">
+              <a className="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Inventory Lists
+              </a>
+              <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              {dashboardLinks}
+              </ul>
             </li>
-            {dashboardLinks}
+            ) : ''}
+            
           </ul>
         </div>
       </div>

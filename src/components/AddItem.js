@@ -38,7 +38,7 @@ export default function AddItem({
       link,
       company: id,
     };
-
+  
     updateState();
     await axios.post("/items", data);
 
